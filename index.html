@@ -15,29 +15,28 @@
   <!-- jQuery and jQuery Mobile -->
   <script src="jquery-2.0.1.js"></script>
   <script src="jquery.mobile-1.3.1.js"></script>
+  <script src="scripts.js"></script>
   
   <script>
 	$(function() {
-		var db = openDatabase ("database", "1.0", "database", 65535);
+		//var db = openDatabase ("database", "1.0", "database", 65535);
+                
+                var currentTime = new Date();
+                var month = currentTime.getMonth() + 1;
+                if (month < 10) {
+                    month = '0'+month;
+                }
+                var day = currentTime.getDate();
+                var year = currentTime.getFullYear();
+                var today = year+"-"+month+"-"+day;
+                $('input[name="deadline_date"]').val(today);
 		
 		$("#test_button").click(function() {
-			$("#textarea1").append('asd ');
+                    $("#textarea1").append('asd ');
 		});
 		
 		$("#createDB").click(function() {
-			$("#textarea1").append('creating db... ');
-			
-			db.transaction (function (transaction) 
-			  {
-				var sql = "CREATE TABLE customers " +
-					" (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
-					"lname VARCHAR(100) NOT NULL, " + 
-					"fname VARCHAR(100) NOT NULL)"
-				transaction.executeSql (sql, undefined, function ()
-				{ 
-				  $("#textarea1").append('done! ');
-				}, error);
-			  });		
+                    create_db();	
 		});
 		
 		$("#addToDB").click(function() {
@@ -55,14 +54,7 @@
 		});
 		
 		$("#deleteDB").click(function() {
-			$("#textarea1").append('deleting db... ');
-				
-			if (!confirm ("Delete table?", "")) return;;
-			db.transaction (function (transaction) 
-			{
-					var sql = "DROP TABLE customers";
-					transaction.executeSql (sql, undefined, ok("done!"), error);
-			});		
+			delete_db();		
 		});
 		
 		$("#showDB").click(function() {
@@ -102,8 +94,45 @@
 		
 		$("#default").click(function() {
 		});
+                
+                $('input[name="submit"]').click(function() {
+                    var name = $('input[name="name"]').val();
+                    var count = $('input[name="count"]').val();
+                    var type = $('select[name="type"]').val();
+                    var deadline_date = $('input[name="deadline_date"]').val();
+                    var calories = $('input[name="calories"]').val();
+                    var proteins = $('input[name="proteins"]').val();
+                    var carbohydrates = $('input[name="carbohydrates"]').val();
+                    var fats = $('input[name="fats"]').val();
+                    
+                    add_to_products(name,count,type,deadline_date,calories,proteins,carbohydrates,fats);
+                    
+                    alert('wybraleś: '+ name + " w liczbie: "+count+ " typu: "+ type + " z datą przydatności: " + deadline_date + " o liczbie kalorii: "+ calories);
+                    clear_fields();
+                });
 		
 	});
+        
+        function clear_fields() {
+            $('input[name="name"]').val('');
+            $('input[name="count"]').val('1');
+            $('select[name="type"]').val('1');
+            $('input[name="calories"]').val('100').slider('refresh');
+            $('input[name="protein"]').val('50').slider('refresh');
+            $('input[name="carbohydrates"]').val('50').slider('refresh');
+            $('input[name="fats"]').val('50').slider('refresh');
+            
+            var currentTime = new Date();
+            var month = currentTime.getMonth() + 1;
+            if (month < 10) {
+                month = '0'+month;
+            }
+            var day = currentTime.getDate();
+            var year = currentTime.getFullYear();
+            var today = year+"-"+month+"-"+day;
+            
+            $('input[name="deadline_date"]').val(today);
+        }
 	
 	function ok (string)
 	{
@@ -115,6 +144,7 @@
 		  alert ("DB error : " + err.message);
 		  return false;
 		}
+                
   </script>
   
 </head>
@@ -123,7 +153,7 @@
 <div data-role="page" id="page1">
     <div data-role="content">
         <div data-role="fieldcontain">
-            <textarea name="" id="textarea1" placeholder=""></textarea>
+            <textarea name="" id="textarea1" ></textarea>
         </div>
         <a data-role="button" data-transition="turn" id="test_button" href="#page1">
             Asd them all!
@@ -140,10 +170,87 @@
 		<a data-role="button" data-transition="turn" id="showDB" href="#page1">
            Show DB
         </a>
-		<a data-role="button" data-transition="turn" id="clearOutput" href="#page1">
-			Clear output
+        <a data-role="button" data-transition="turn" id="clearOutput" href="#page1">
+            Clear output
+        </a>
+        <a data-role="button" data-transition="turn" id="addNew" href="#page2">
+            Add_new
         </a>
     </div>
 </div>
+
+
+<!-- Home -->
+<div data-role="page" id="page2">
+    <div data-role="content">
+        <div data-role="fieldcontain">
+            <label for="textinput1">
+                Nazwa
+            </label>
+            <input name="name" id="textinput1" value="" type="text" data-mini="true">
+        </div>
+        <div data-role="fieldcontain">
+            <label for="textinput14">
+                L. sztuk
+            </label>
+            <input name="count" id="textinput14" value="1" type="number"
+            data-mini="true">
+        </div>
+        <div data-role="fieldcontain">
+            <label for="selectmenu4">
+                Typ
+            </label>
+            <select id="selectmenu4" name="type" data-mini="true">
+                <option value="1">
+                    Option 1
+                </option>
+                <option value="2">
+                    Option 2
+                </option>
+            </select>
+        </div>
+        <div data-role="fieldcontain">
+            <label for="textinput7">
+                Data przydatności
+            </label>
+            <input name="deadline_date" id="textinput7" type="date"
+            data-mini="true">
+        </div>
+        <div data-role="fieldcontain">
+            <label for="slider1">
+                Kalorie
+            </label>
+            <input id="slider1" type="range" name="calories" value="100" min="0" max="1000"
+            data-highlight="false" data-theme="d">
+        </div>
+        <div data-role="fieldcontain">
+            <label for="slider3">
+                Białko
+            </label>
+            <input id="slider3" type="range" name="proteins" value="50" min="0" max="1000"
+            data-highlight="false" data-theme="d" data-track-theme="b">
+        </div>
+        <div data-role="fieldcontain">
+            <label for="slider2">
+                Węglowodany
+            </label>
+            <input id="slider2" type="range" name="carbohydrates" value="50" min="0" max="1000"
+            data-highlight="false" data-theme="d" data-track-theme="e">
+        </div>
+        <div data-role="fieldcontain">
+            <label for="slider4">
+                Tłuszcze
+            </label>
+            <input id="slider4" type="range" name="fats" value="50" min="0" max="1000"
+            data-highlight="false" data-theme="d" data-track-theme="a">
+        </div>
+        <input type="submit" name="submit" data-inline="true" data-icon="plus" data-iconpos="left"
+        value="Zapisz" data-mini="true">
+        <a href="#page1"><button data-inline="true" data-icon="plus" data-iconpos="left"
+        value="Zapisz" data-mini="true">Wróć</button></a>
+    </div>
+</div>
+
+
 </body>
 </html>
