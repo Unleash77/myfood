@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <title></title>
+  <link rel="stylesheet" href="jquery.mobile-1.3.1.css">
+  
+  <!-- Extra Codiqa features -->
+  <link rel="stylesheet" href="codiqa.ext.css">
+  
+  <!-- jQuery and jQuery Mobile -->
+  <script src="jquery-2.0.1.js"></script>
+  <script src="jquery.mobile-1.3.1.js"></script>
+  
+  <script>
+	$(function() {
+		var db = openDatabase ("database", "1.0", "database", 65535);
+		
+		$("#test_button").click(function() {
+			$("#textarea1").append('asd ');
+		});
+		
+		$("#createDB").click(function() {
+			$("#textarea1").append('creating db... ');
+			
+			db.transaction (function (transaction) 
+			  {
+				var sql = "CREATE TABLE customers " +
+					" (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
+					"lname VARCHAR(100) NOT NULL, " + 
+					"fname VARCHAR(100) NOT NULL)"
+				transaction.executeSql (sql, undefined, function ()
+				{ 
+				  $("#textarea1").append('done! ');
+				}, error);
+			  });		
+		});
+		
+		$("#addToDB").click(function() {
+			var lname = "Warta";
+			var fname = "Dawid";
+
+			db.transaction (function (transaction) 
+			{
+			var sql = "INSERT INTO customers (lname, fname) VALUES (?, ?)";
+			transaction.executeSql (sql, [lname, fname], function ()
+				{ 
+				  $("#textarea1").append('Added to db: '+lname+' '+fname+' ');
+				}, error);
+			});
+		});
+		
+		$("#deleteDB").click(function() {
+			$("#textarea1").append('deleting db... ');
+				
+			if (!confirm ("Delete table?", "")) return;;
+			db.transaction (function (transaction) 
+			{
+					var sql = "DROP TABLE customers";
+					transaction.executeSql (sql, undefined, ok("done!"), error);
+			});		
+		});
+		
+		$("#showDB").click(function() {
+			db.transaction (function (transaction) 
+			  {
+				var sql = "SELECT * FROM customers";
+				transaction.executeSql (sql, undefined, 
+				function (transaction, result)
+				{
+				  var html = "";
+				  if (result.rows.length)
+				  {
+					for (var i = 0; i < result.rows.length; i++) 
+					{
+					  var row = result.rows.item (i);
+					  var lname = row.lname;
+					  var fname = row.fname;
+					  html += lname + "&nbsp;" + fname + "\r";
+					}
+				  }
+				  else
+				  {
+					html += "No customer";
+				  }
+				  
+				  
+				  ok(html);
+				  
+				}, error);
+			  });
+		});
+		
+		$("#clearOutput").click(function() {
+			$("#textarea1").html("");
+		});
+		
+		
+		$("#default").click(function() {
+		});
+		
+	});
+	
+	function ok (string)
+	{
+		$("#textarea1").append(string);
+	}
+	
+	function error (transaction, err) 
+		{
+		  alert ("DB error : " + err.message);
+		  return false;
+		}
+  </script>
+  
+</head>
+<body>
+<!-- Home -->
+<div data-role="page" id="page1">
+    <div data-role="content">
+        <div data-role="fieldcontain">
+            <textarea name="" id="textarea1" placeholder=""></textarea>
+        </div>
+        <a data-role="button" data-transition="turn" id="test_button" href="#page1">
+            Asd them all!
+        </a>
+		<a data-role="button" data-transition="turn" id="createDB" href="#page1">
+           Create db
+        </a>
+		<a data-role="button" data-transition="turn" id="deleteDB" href="#page1">
+           Delete db
+        </a>
+		<a data-role="button" data-transition="turn" id="addToDB" href="#page1">
+           Add default to DB
+        </a>
+		<a data-role="button" data-transition="turn" id="showDB" href="#page1">
+           Show DB
+        </a>
+		<a data-role="button" data-transition="turn" id="clearOutput" href="#page1">
+			Clear output
+        </a>
+    </div>
+</div>
+</body>
+</html>
