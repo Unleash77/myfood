@@ -39,52 +39,43 @@
                     create_db();	
 		});
 		
-		$("#addToDB").click(function() {
-			var lname = "Warta";
-			var fname = "Dawid";
-
-			db.transaction (function (transaction) 
-			{
-			var sql = "INSERT INTO customers (lname, fname) VALUES (?, ?)";
-			transaction.executeSql (sql, [lname, fname], function ()
-				{ 
-				  $("#textarea1").append('Added to db: '+lname+' '+fname+' ');
-				}, error);
-			});
-		});
-		
 		$("#deleteDB").click(function() {
 			delete_db();		
 		});
+                
+                $("#addNew").click(function() {
+                    reload_selecttype();	
+		});
 		
 		$("#showDB").click(function() {
-			db.transaction (function (transaction) 
-			  {
-				var sql = "SELECT * FROM customers";
-				transaction.executeSql (sql, undefined, 
-				function (transaction, result)
-				{
-				  var html = "";
-				  if (result.rows.length)
-				  {
-					for (var i = 0; i < result.rows.length; i++) 
-					{
-					  var row = result.rows.item (i);
-					  var lname = row.lname;
-					  var fname = row.fname;
-					  html += lname + "&nbsp;" + fname + "\r";
-					}
-				  }
-				  else
-				  {
-					html += "No customer";
-				  }
-				  
-				  
-				  ok(html);
-				  
-				}, error);
-			  });
+                    db.transaction (function (transaction) 
+                    {
+                        var sql = "SELECT * FROM products";
+                        transaction.executeSql (sql, undefined, 
+                        function (transaction, result)
+                        {
+                          var html = "";
+                          if (result.rows.length)
+                          {
+                                for (var i = 0; i < result.rows.length; i++) 
+                                {
+                                  var row = result.rows.item (i);
+                                  var name = row.name;
+                                  var type = row.type_id;
+                                  var calories = row.calories;
+                                  html += name + "&nbsp;" + type + " kalorie: " +calories+ "\r";
+                                }
+                          }
+                          else
+                          {
+                                html += "No customer";
+                          }
+
+
+                          ok(html);
+
+                        }, error);
+                    });
 		});
 		
 		$("#clearOutput").click(function() {
@@ -98,17 +89,45 @@
                 $('input[name="submit"]').click(function() {
                     var name = $('input[name="name"]').val();
                     var count = $('input[name="count"]').val();
-                    var type = $('select[name="type"]').val();
+                    var type = $('select[name="selecttype"]').val();
+                    if (type == '') {
+                        type = 0;
+                    }
                     var deadline_date = $('input[name="deadline_date"]').val();
                     var calories = $('input[name="calories"]').val();
                     var proteins = $('input[name="proteins"]').val();
                     var carbohydrates = $('input[name="carbohydrates"]').val();
                     var fats = $('input[name="fats"]').val();
                     
-                    add_to_products(name,count,type,deadline_date,calories,proteins,carbohydrates,fats);
+                    // tastes
+                    var taste_1 = $('#taste_1').is(':checked') ? 1 : 0;
+                    var taste_2 = $('#taste_2').is(':checked') ? 1 : 0;
+                    var taste_3 = $('#taste_3').is(':checked') ? 1 : 0;
+                    var taste_4 = $('#taste_4').is(':checked') ? 1 : 0;
+                    var taste_5 = $('#taste_5').is(':checked') ? 1 : 0;
+
+                    // food types
+                    var meal_1 = $('#meal_1').is(':checked') ? 1 : 0;
+                    var meal_2 = $('#meal_2').is(':checked') ? 1 : 0;
+                    var meal_3 = $('#meal_3').is(':checked') ? 1 : 0;
+                    var meal_4 = $('#meal_4').is(':checked') ? 1 : 0;
+                    var meal_5 = $('#meal_5').is(':checked') ? 1 : 0;
+
+                    //alert('1: '+taste_1+' 2: '+taste_2+' 3: '+taste_3+' 4: '+taste_4+' 5: '+taste_5);
+                    //alert('1: '+meal_1+' 2: '+meal_2+' 3: '+meal_3+' 4: '+meal_4+' 5: '+meal_5);
                     
-                    alert('wybraleś: '+ name + " w liczbie: "+count+ " typu: "+ type + " z datą przydatności: " + deadline_date + " o liczbie kalorii: "+ calories);
+                    add_to_products(name,count,type,deadline_date,calories,proteins,carbohydrates,fats, taste_1, taste_2, taste_3, taste_4, taste_5, meal_1, meal_2, meal_3, meal_4, meal_5);
+                    
+                    //alert('wybraleś: '+ name + " w liczbie: "+count+ " typu: "+ type + " z datą przydatności: " + deadline_date + " o liczbie kalorii: "+ calories);
                     clear_fields();
+                });
+                
+                $('input[name="submit_pg3"]').click(function() {
+                    var name = $('input[name="name_pg3"]').val();
+                    
+                    add_to_type(name);
+                    
+                    $('input[name="name_pg3"]').val("");
                 });
 		
 	});
@@ -116,9 +135,9 @@
         function clear_fields() {
             $('input[name="name"]').val('');
             $('input[name="count"]').val('1');
-            $('select[name="type"]').val('1');
+            $('select[name="selecttype"]').val('');
             $('input[name="calories"]').val('100').slider('refresh');
-            $('input[name="protein"]').val('50').slider('refresh');
+            $('input[name="proteins"]').val('50').slider('refresh');
             $('input[name="carbohydrates"]').val('50').slider('refresh');
             $('input[name="fats"]').val('50').slider('refresh');
             
@@ -132,6 +151,20 @@
             var today = year+"-"+month+"-"+day;
             
             $('input[name="deadline_date"]').val(today);
+            
+            // tastes
+            $('#taste_1').attr('checked', false).checkboxradio("refresh");
+            $('#taste_2').attr('checked', false).checkboxradio("refresh");
+            $('#taste_3').attr('checked', false).checkboxradio("refresh");
+            $('#taste_4').attr('checked', false).checkboxradio("refresh");
+            $('#taste_5').attr('checked', false).checkboxradio("refresh");
+
+            // food types
+            $('#meal_1').attr('checked', false).checkboxradio("refresh");
+            $('#meal_2').attr('checked', false).checkboxradio("refresh");
+            $('#meal_3').attr('checked', false).checkboxradio("refresh");
+            $('#meal_4').attr('checked', false).checkboxradio("refresh");
+            $('#meal_5').attr('checked', false).checkboxradio("refresh");
         }
 	
 	function ok (string)
@@ -140,10 +173,14 @@
 	}
 	
 	function error (transaction, err) 
-		{
-		  alert ("DB error : " + err.message);
-		  return false;
-		}
+        {
+          alert ("DB error : " + err.message);
+          return false;
+        }
+        
+        function reload_selecttype() {
+            get_types();
+        }
                 
   </script>
   
@@ -174,7 +211,10 @@
             Clear output
         </a>
         <a data-role="button" data-transition="turn" id="addNew" href="#page2">
-            Add_new
+            Dodaj produkt
+        </a>
+        <a data-role="button" data-transition="turn" id="addNewType" href="#page3">
+            Dodaj typ produktu
         </a>
     </div>
 </div>
@@ -197,24 +237,18 @@
             data-mini="true">
         </div>
         <div data-role="fieldcontain">
-            <label for="selectmenu4">
-                Typ
-            </label>
-            <select id="selectmenu4" name="type" data-mini="true">
-                <option value="1">
-                    Option 1
-                </option>
-                <option value="2">
-                    Option 2
-                </option>
-            </select>
-        </div>
-        <div data-role="fieldcontain">
             <label for="textinput7">
                 Data przydatności
             </label>
             <input name="deadline_date" id="textinput7" type="date"
             data-mini="true">
+        </div>
+        <div data-role="fieldcontain">
+            <label for="selecttype">
+                Typ:
+            </label>
+            <select id="selecttype" name="selecttype" data-mini="true">
+            </select>
         </div>
         <div data-role="fieldcontain">
             <label for="slider1">
@@ -244,10 +278,91 @@
             <input id="slider4" type="range" name="fats" value="50" min="0" max="1000"
             data-highlight="false" data-theme="d" data-track-theme="a">
         </div>
+        
+        <div data-role="collapsible-set">
+            <div data-role="collapsible" data-collapsed="true">
+                <h3>
+                    Smak
+                </h3>
+                <fieldset data-role="controlgroup" data-type="vertical" data-mini="true">
+                    <input id="taste_1" name="" data-theme="c" type="checkbox">
+                    <label for="taste_1">
+                        Słony
+                    </label>
+                    <input id="taste_2" name="" data-theme="c" type="checkbox">
+                    <label for="taste_2">
+                        Słodki
+                    </label>
+                    <input id="taste_3" name="" data-theme="c" type="checkbox">
+                    <label for="taste_3">
+                        Ostry
+                    </label>
+                    <input id="taste_4" name="" data-theme="c" type="checkbox">
+                    <label for="taste_4">
+                        Gorzki
+                    </label>
+                    <input id="taste_5" name="" data-theme="c" type="checkbox">
+                    <label for="taste_5">
+                        Kwaśny
+                    </label>
+                </fieldset>
+            </div>
+            <div data-role="collapsible">
+                <h3>
+                    Typ posiłku
+                </h3>
+                <fieldset data-role="controlgroup" data-type="vertical" data-mini="true">
+                    <input id="meal_1" name="" data-theme="c" type="checkbox">
+                    <label for="meal_1">
+                        Śniadanie
+                    </label>
+                    <input id="meal_2" name="" data-theme="c" type="checkbox">
+                    <label for="meal_2">
+                        Lunch
+                    </label>
+                    <input id="meal_3" name="" data-theme="c" type="checkbox">
+                    <label for="meal_3">
+                        Obiad
+                    </label>
+                    <input id="meal_4" name="" data-theme="c" type="checkbox">
+                    <label for="meal_4">
+                        Kolacja
+                    </label>
+                    <input id="meal_5" name="" data-theme="c" type="checkbox">
+                    <label for="meal_5">
+                        Przekąska
+                    </label>
+                </fieldset>
+            </div>
+        </div>
+        
+        
         <input type="submit" name="submit" data-inline="true" data-icon="plus" data-iconpos="left"
-        value="Zapisz" data-mini="true">
-        <a href="#page1"><button data-inline="true" data-icon="plus" data-iconpos="left"
-        value="Zapisz" data-mini="true">Wróć</button></a>
+        value="Dodaj" data-mini="true">
+        <a href="#page1">
+            <button data-inline="true" data-icon="back" data-iconpos="left" value="Wróć" data-mini="true">
+                Wróć
+            </button>
+        </a>
+    </div>
+</div>
+
+<!-- Add type page -->
+<div data-role="page" id="page3">
+    <div data-role="content">
+        <div data-role="fieldcontain">
+            <label for="textinput1">
+                Nazwa
+            </label>
+            <input name="name_pg3" id="textinput2" value="" type="text" data-mini="true">
+        </div>
+        <input type="submit" name="submit_pg3" data-inline="true" data-icon="plus" data-iconpos="left"
+        value="Dodaj" data-mini="true">
+        <a href="#page1">
+            <button data-inline="true" data-icon="back" data-iconpos="left" value="Wróć" data-mini="true">
+                Wróć
+            </button>
+        </a>
     </div>
 </div>
 
