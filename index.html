@@ -46,7 +46,16 @@
                 $("#addNew").click(function() {
                     reload_selecttype();	
 		});
+                
+                $("#showProducts").click(function() {
+                    reload_products();	
+		});
 		
+                $('#refresher').click(function() {
+                    //$('#my-table').table("refresh");
+                    reload_products();	
+		});
+                
 		$("#showDB").click(function() {
                     db.transaction (function (transaction) 
                     {
@@ -81,7 +90,6 @@
 		$("#clearOutput").click(function() {
 			$("#textarea1").html("");
 		});
-		
 		
 		$("#default").click(function() {
 		});
@@ -181,6 +189,10 @@
         function reload_selecttype() {
             get_types();
         }
+        
+        function reload_products() {
+            get_products();
+        }
                 
   </script>
   
@@ -192,19 +204,16 @@
         <div data-role="fieldcontain">
             <textarea name="" id="textarea1" ></textarea>
         </div>
-        <a data-role="button" data-transition="turn" id="test_button" href="#page1">
-            Asd them all!
-        </a>
-		<a data-role="button" data-transition="turn" id="createDB" href="#page1">
+        <a data-role="button" data-transition="turn" id="createDB" href="#page1">
            Create db
         </a>
-		<a data-role="button" data-transition="turn" id="deleteDB" href="#page1">
+        <a data-role="button" data-transition="turn" id="deleteDB" href="#page1">
            Delete db
         </a>
-		<a data-role="button" data-transition="turn" id="addToDB" href="#page1">
+        <a data-role="button" data-transition="turn" id="addToDB" href="#page1">
            Add default to DB
         </a>
-		<a data-role="button" data-transition="turn" id="showDB" href="#page1">
+        <a data-role="button" data-transition="turn" id="showDB" href="#page1">
            Show DB
         </a>
         <a data-role="button" data-transition="turn" id="clearOutput" href="#page1">
@@ -215,6 +224,9 @@
         </a>
         <a data-role="button" data-transition="turn" id="addNewType" href="#page3">
             Dodaj typ produktu
+        </a>
+        <a data-role="button" data-transition="turn" id="showProducts" href="#page4">
+            Pokaż produkty
         </a>
     </div>
 </div>
@@ -358,6 +370,36 @@
         </div>
         <input type="submit" name="submit_pg3" data-inline="true" data-icon="plus" data-iconpos="left"
         value="Dodaj" data-mini="true">
+        <a href="#page1">
+            <button data-inline="true" data-icon="back" data-iconpos="left" value="Wróć" data-mini="true">
+                Wróć
+            </button>
+        </a>
+    </div>
+</div>
+
+<!-- Show products page -->
+<div data-role="page" id="page4">
+    <div data-role="content">
+        <table data-role="table" data-mode="columntoggle" data-column-btn-text="Kolumny..." id="my-table">
+            <thead>
+                <tr>
+                    <th data-priority="1">Nazwa</th>
+                    <th data-priority="1">Stan</th>
+                    <TH data-priority="1">Termin przydatności</TH>
+                    <TH data-priority="2">Kalorie</TH>
+                    <TH data-priority="3">Białko</TH>
+                    <TH data-priority="3">Węglowodany</TH>
+                    <TH data-priority="3">Tłuszcze</TH>
+                </tr>
+            </thead>
+            <tbody id="tbody1">
+
+            </tbody>
+        </table>
+        <button id="refresher" data-inline="true" data-icon="back" data-iconpos="left" value="Wróć" data-mini="true">
+            refresh
+        </button>
         <a href="#page1">
             <button data-inline="true" data-icon="back" data-iconpos="left" value="Wróć" data-mini="true">
                 Wróć

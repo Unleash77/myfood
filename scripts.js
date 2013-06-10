@@ -120,6 +120,36 @@ function get_types() {
           }
           $('select[name="selecttype"]').html(html).selectmenu('refresh', true);
         });
+    }); 
+}
+
+function get_products() {
+    db.transaction (function (transaction) 
+    {
+        var sql = "SELECT * FROM products ORDER BY `deadline_date` ASC";
+        transaction.executeSql (sql, undefined, 
+        function (transaction, result)
+        {
+            var html = '';
+            if (result.rows.length)
+            {
+                for (var i = 0; i < result.rows.length; i++) 
+                {
+                  var row = result.rows.item (i);
+                  
+                  html += '<tr>' +
+                          '<td>' + row.name + '</td>' +
+                          '<td>' + row.count + '</td>' +
+                          '<td>' + row.deadline_date + '</td>' +
+                          '<td>' + row.calories + '</td>' +
+                          '<td>' + row.proteins + '</td>' +
+                          '<td>' + row.carbohydrates + '</td>' +
+                          '<td>' + row.fats + '</td>' +
+                          '</tr>';        
+                }
+                $('#tbody1').html(html);
+                $('#my-table').table( "refresh" );
+            }
+        });
     });
-    
 }
