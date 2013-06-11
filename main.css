@@ -1,7 +1,7 @@
 #page1 {
-    background: url('img/refrigerator_resized.png');
+    /*background: url('img/refrigerator_resized.png');
     width: 100%;
-    height: 100%;
+    height: 100%;*/
 }
 table tr {
     border-bottom: solid 1px grey;
@@ -11,4 +11,13 @@ table th {
 }
 table tr.last {
     border-bottom: none;
+}
+.plus {
+    cursor: pointer;
+}
+.minus {
+    cursor: pointer;
+}
+.delete {
+    cursor: pointer;
 }

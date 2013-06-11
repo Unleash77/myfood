@@ -123,6 +123,183 @@ function get_types() {
     }); 
 }
 
+function get_products_filtered(taste_1, taste_2, taste_3, taste_4, taste_5, meal_1, meal_2, meal_3, meal_4, meal_5) {
+    
+    db.transaction (function (transaction) 
+    {
+        var first = 1;
+        var part_one = 0;
+        var part_two = 0;
+        
+        var sql = "SELECT * FROM products ";
+        if (taste_1 == 1) {
+            if (first == 1) {
+                sql += 'WHERE ( ';
+                first = 0;
+                part_one = 1;
+            }
+            else {
+                sql += 'OR ';
+            }
+            sql += "`taste_1` = "+taste_1+" ";
+        }
+        if (taste_2 == 1) {
+            if (first == 1) {
+                sql += 'WHERE ( ';
+                first = 0;
+                part_one = 1;
+            }
+            else {
+                sql += 'OR ';
+            }
+            sql += "`taste_2` = "+taste_2+" ";
+        }
+        if (taste_3 == 1) {
+            if (first == 1) {
+                sql += 'WHERE ( ';
+                first = 0;
+                part_one = 1;
+            }
+            else {
+                sql += 'OR ';
+            }
+            sql += "`taste_3` = "+taste_3+" ";
+        }
+        if (taste_4 == 1) {
+            if (first == 1) {
+                sql += 'WHERE ( ';
+                first = 0;
+                part_one = 1;
+            }
+            else {
+                sql += 'OR ';
+            }
+            sql += "`taste_4` = "+taste_4+" ";
+        }
+        if (taste_5 == 1) {
+            if (first == 1) {
+                sql += 'WHERE ( ';
+                first = 0;
+                part_one = 1;
+            }
+            else {
+                sql += 'OR ';
+            }
+            sql += "`taste_5` = "+taste_5+" ";
+        }
+        
+        if (part_one == 1) {
+            sql += " ) ";
+        }
+        
+        if (meal_1 == 1) {
+            if (first == 1) {
+                sql += 'WHERE ';
+                first = 0;
+            }
+            else if (part_one == 1) {
+                sql += 'AND ( ';
+                part_two = 1;
+            }
+            else {
+                sql += 'OR ';
+            }
+            sql += "`meal_1` = "+meal_1+" ";
+        }
+        if (meal_2 == 1) {
+            if (first == 1) {
+                sql += 'WHERE ';
+                first = 0;
+            }
+            else if (part_one == 1 && part_two == 0) {
+                sql += 'AND ( ';
+                part_two = 1;
+            }
+            else {
+                sql += 'OR ';
+            }
+            sql += "`meal_2` = "+meal_2+" ";
+        }
+        if (meal_3 == 1) {
+            if (first == 1) {
+                sql += 'WHERE ';
+                first = 0;
+            }
+            else if (part_one == 1 && part_two == 0) {
+                sql += 'AND ( ';
+                part_two = 1;
+            }
+            else {
+                sql += 'OR ';
+            }
+            sql += "`meal_3` = "+meal_3+" ";
+        }
+        if (meal_4 == 1) {
+            if (first == 1) {
+                sql += 'WHERE ';
+                first = 0;
+            }
+            else if (part_one == 1 && part_two == 0) {
+                sql += 'AND ( ';
+                part_two = 1;
+            }
+            else {
+                sql += 'OR ';
+            }
+            sql += "`meal_4` = "+meal_4+" ";
+        }
+        if (meal_5 == 1) {
+            if (first == 1) {
+                sql += 'WHERE ';
+                first = 0;
+            }
+            else if (part_one == 1 && part_two == 0) {
+                sql += 'AND ( ';
+                part_two = 1;
+            }
+            else {
+                sql += 'OR ';
+            }
+            sql += "`meal_5` = "+meal_5+" ";
+        }
+        
+        if (part_two == 1) {
+            sql += " ) ";
+        }
+        
+        sql += " ORDER BY `deadline_date` ASC";
+        
+        //alert(sql);
+        
+        transaction.executeSql (sql, undefined, 
+        function (transaction, result)
+        {
+            var html = '';
+            if (result.rows.length)
+            {
+                for (var i = 0; i < result.rows.length; i++) 
+                {
+                  var row = result.rows.item (i);
+                  
+                  html += '<tr class="tr_'+row.id+'">' +
+                          '<td>' + row.name + '</td>' +
+                          '<td class="count_'+row.id+'">' + row.count + '</td>' +
+                          '<td>' + row.deadline_date + '</td>' +
+                          '<td>' + row.calories + '</td>' +
+                          '<td>' + row.proteins + '</td>' +
+                          '<td>' + row.carbohydrates + '</td>' +
+                          '<td>' + row.fats + '</td>' +
+                          '<td><a onclick="add_one('+row.id+')"><img class="ui-icon ui-icon-plus plus"/></a> <a onclick="minus_one('+row.id+')"><img class="ui-icon ui-icon-minus minus"/></a> <a onclick="delete_one('+row.id+')"><img class="ui-icon ui-icon-delete delete"/></a></td>' +
+                          '</tr>';        
+                }   
+            }
+                $('#tbody1').html(html);
+                $('#my-table').table( "refresh" );
+        });
+    });
+}
+
+
 function get_products() {
     db.transaction (function (transaction) 
     {
@@ -137,18 +314,138 @@ function get_products() {
                 {
                   var row = result.rows.item (i);
                   
-                  html += '<tr>' +
+                  html += '<tr class="tr_'+row.id+'">' +
                           '<td>' + row.name + '</td>' +
-                          '<td>' + row.count + '</td>' +
+                          '<td class="count_'+row.id+'">' + row.count + '</td>' +
                           '<td>' + row.deadline_date + '</td>' +
                           '<td>' + row.calories + '</td>' +
                           '<td>' + row.proteins + '</td>' +
                           '<td>' + row.carbohydrates + '</td>' +
                           '<td>' + row.fats + '</td>' +
+                          '<td><a onclick="add_one('+row.id+')"><img class="ui-icon ui-icon-plus plus"/></a> <a onclick="minus_one('+row.id+')"><img class="ui-icon ui-icon-minus minus"/></a> <a onclick="delete_one('+row.id+')"><img class="ui-icon ui-icon-delete delete"/></a></td>' +
                           '</tr>';        
                 }
                 $('#tbody1').html(html);
                 $('#my-table').table( "refresh" );
+            }
+        });
+    });
+}
+
+function add_one(id) {
+
+    db.transaction (function (transaction) 
+    {
+        var sql = "UPDATE products SET `count` = `count` + 1 WHERE `id` = "+id+" ";
+        transaction.executeSql (sql, undefined, 
+        function (transaction, result)
+        {
+            var count = parseInt($('.count_'+id).html());
+            count += 1;
+            $('.count_'+id).html(count)
+        });
+    });
+    
+}
+
+function minus_one(id) {
+    db.transaction (function (transaction) 
+    {
+        var sql = "UPDATE products SET `count` = `count` - 1 WHERE `id` = "+id+" ";
+        transaction.executeSql (sql, undefined, 
+        function (transaction, result)
+        {
+            var count = parseInt($('.count_'+id).html());
+            count -= 1;
+            $('.count_'+id).html(count)
+        });
+    });
+}
+
+function delete_one(id) {
+    db.transaction (function (transaction) 
+    {
+        var sql = "DELETE FROM products WHERE `id` = "+id+" ";
+        transaction.executeSql (sql, undefined, 
+        function (transaction, result)
+        {
+            $('.tr_'+id).hide();
+        });
+    });
+}
+
+function get_deadlined() {
+    db.transaction (function (transaction) 
+    {
+        var currentTime = new Date();
+        var month = currentTime.getMonth() + 1;
+        if (month < 10) {
+            month = '0'+month;
+        }
+        var day = currentTime.getDate();
+        var year = currentTime.getFullYear();
+        var today = year+"-"+month+"-"+day;
+        
+        var sql = "SELECT * FROM products WHERE `count` > 0 AND `deadline_date` <= DATE('"+today+"','+1 days') ORDER BY `deadline_date` ASC";
+        transaction.executeSql (sql, undefined, 
+        function (transaction, result)
+        {
+            var html = '<li data-role="list-divider" role="heading" id="deadlined">Termin przydatności</li>';
+
+            if (result.rows.length)
+            {
+                for (var i = 0; i < result.rows.length; i++) 
+                {
+                  var row = result.rows.item (i);
+                  
+                  if (row.deadline_date < today) {
+                    html += '<li data-theme="a" data-icon="alert"><a data-transition="slide">'+row.name+' : '+row.deadline_date+'<span class="ui-li-count">'+row.count+'</span></a></li>';
+                  }
+                  else {
+                    html += '<li data-theme="e" data-icon="alert"><a data-transition="slide">'+row.name+' : '+row.deadline_date+'<span class="ui-li-count">'+row.count+'</span></a></li>';
+                  }
+     
+                }
+                $('#listview1').html(html);
+                $('#listview1').listview('refresh');
+                //$('#my-table').table( "refresh" );
+            }
+            else {
+                $('#listview1').html("");
+            }
+        });
+    });
+}
+
+function get_outnumbered() {
+    db.transaction (function (transaction) 
+    {
+        var sql = "SELECT * FROM products WHERE `count` <= 3  ORDER BY `count` ASC";
+        transaction.executeSql (sql, undefined, 
+        function (transaction, result)
+        {
+            var html = '<li data-role="list-divider" role="heading" id="counted">Zapasy</li>';
+
+            if (result.rows.length)
+            {
+                for (var i = 0; i < result.rows.length; i++) 
+                {
+                  var row = result.rows.item (i);
+                  
+                  if (row.count == 0) {
+                    html += '<li data-theme="a" data-icon="alert"><a data-transition="slide">'+row.name+' : '+row.count+'<span class="ui-li-count">'+row.deadline_date+'</span></a></li>';
+                  }
+                  else {
+                    html += '<li data-theme="e" data-icon="alert"><a data-transition="slide">'+row.name+' : '+row.count+'<span class="ui-li-count">'+row.deadline_date+'</span></a></li>';
+                  }
+     
+                }
+                $('#listview2').html(html);
+                $('#listview2').listview('refresh');
+                //$('#my-table').table( "refresh" );
+            }
+            else {
+                $('#listview2').html("");
             }
         });
     });

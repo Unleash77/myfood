@@ -50,43 +50,18 @@
                 $("#showProducts").click(function() {
                     reload_products();	
 		});
+                
+                $("#showAlarms").click(function() {
+                    get_deadlined();
+                    get_outnumbered();
+		});
+                 
 		
-                $('#refresher').click(function() {
+                /*$('#refresher').click(function() {
                     //$('#my-table').table("refresh");
                     reload_products();	
-		});
+		});*/
                 
-		$("#showDB").click(function() {
-                    db.transaction (function (transaction) 
-                    {
-                        var sql = "SELECT * FROM products";
-                        transaction.executeSql (sql, undefined, 
-                        function (transaction, result)
-                        {
-                          var html = "";
-                          if (result.rows.length)
-                          {
-                                for (var i = 0; i < result.rows.length; i++) 
-                                {
-                                  var row = result.rows.item (i);
-                                  var name = row.name;
-                                  var type = row.type_id;
-                                  var calories = row.calories;
-                                  html += name + "&nbsp;" + type + " kalorie: " +calories+ "\r";
-                                }
-                          }
-                          else
-                          {
-                                html += "No customer";
-                          }
-
-
-                          ok(html);
-
-                        }, error);
-                    });
-		});
-		
 		$("#clearOutput").click(function() {
 			$("#textarea1").html("");
 		});
@@ -137,7 +112,57 @@
                     
                     $('input[name="name_pg3"]').val("");
                 });
+                
+                $('.plus').on('click', function(event){
+                   alert('workz'); 
+                });
+                
+                /*$('.minus').on('click', function(event){
+                   alert('workz too!'); 
+                });*/
+                
+                $('.minus').click(function(event){
+                   alert('workz too!'); 
+                });
 		
+                // Filters
+                $('input[id^="taste_f"]').change(function() {
+                    // tastes
+                    var taste_1 = $('#taste_f_1').is(':checked') ? 1 : 0;
+                    var taste_2 = $('#taste_f_2').is(':checked') ? 1 : 0;
+                    var taste_3 = $('#taste_f_3').is(':checked') ? 1 : 0;
+                    var taste_4 = $('#taste_f_4').is(':checked') ? 1 : 0;
+                    var taste_5 = $('#taste_f_5').is(':checked') ? 1 : 0;
+
+                    // food types
+                    var meal_1 = $('#meal_f_1').is(':checked') ? 1 : 0;
+                    var meal_2 = $('#meal_f_2').is(':checked') ? 1 : 0;
+                    var meal_3 = $('#meal_f_3').is(':checked') ? 1 : 0;
+                    var meal_4 = $('#meal_f_4').is(':checked') ? 1 : 0;
+                    var meal_5 = $('#meal_f_5').is(':checked') ? 1 : 0;
+                    
+                    get_products_filtered(taste_1, taste_2, taste_3, taste_4, taste_5, meal_1, meal_2, meal_3, meal_4, meal_5);
+                    
+                });
+                
+                $('input[id^="meal_f"]').change(function() {
+                    // tastes
+                    var taste_1 = $('#taste_f_1').is(':checked') ? 1 : 0;
+                    var taste_2 = $('#taste_f_2').is(':checked') ? 1 : 0;
+                    var taste_3 = $('#taste_f_3').is(':checked') ? 1 : 0;
+                    var taste_4 = $('#taste_f_4').is(':checked') ? 1 : 0;
+                    var taste_5 = $('#taste_f_5').is(':checked') ? 1 : 0;
+
+                    // food types
+                    var meal_1 = $('#meal_f_1').is(':checked') ? 1 : 0;
+                    var meal_2 = $('#meal_f_2').is(':checked') ? 1 : 0;
+                    var meal_3 = $('#meal_f_3').is(':checked') ? 1 : 0;
+                    var meal_4 = $('#meal_f_4').is(':checked') ? 1 : 0;
+                    var meal_5 = $('#meal_f_5').is(':checked') ? 1 : 0;
+                    
+                    get_products_filtered(taste_1, taste_2, taste_3, taste_4, taste_5, meal_1, meal_2, meal_3, meal_4, meal_5);
+                    
+                });
 	});
         
         function clear_fields() {
@@ -201,23 +226,11 @@
 <!-- Home -->
 <div data-role="page" id="page1">
     <div data-role="content">
-        <div data-role="fieldcontain">
-            <textarea name="" id="textarea1" ></textarea>
-        </div>
         <a data-role="button" data-transition="turn" id="createDB" href="#page1">
            Create db
         </a>
         <a data-role="button" data-transition="turn" id="deleteDB" href="#page1">
            Delete db
-        </a>
-        <a data-role="button" data-transition="turn" id="addToDB" href="#page1">
-           Add default to DB
-        </a>
-        <a data-role="button" data-transition="turn" id="showDB" href="#page1">
-           Show DB
-        </a>
-        <a data-role="button" data-transition="turn" id="clearOutput" href="#page1">
-            Clear output
         </a>
         <a data-role="button" data-transition="turn" id="addNew" href="#page2">
             Dodaj produkt
@@ -227,6 +240,9 @@
         </a>
         <a data-role="button" data-transition="turn" id="showProducts" href="#page4">
             Pokaż produkty
+        </a>
+        <a data-role="button" data-transition="turn" id="showAlarms" href="#page5">
+            Pokaż alarmy
         </a>
     </div>
 </div>
@@ -381,6 +397,60 @@
 <!-- Show products page -->
 <div data-role="page" id="page4">
     <div data-role="content">
+        <div id="checkboxes1" data-role="fieldcontain">
+            <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+                <legend>
+                    Smak:
+                </legend>
+                <input id="taste_f_1" name="" type="checkbox">
+                <label for="taste_f_1">
+                    Słony
+                </label>
+                <input id="taste_f_2" name="" type="checkbox">
+                <label for="taste_f_2">
+                    Słodki
+                </label>
+                <input id="taste_f_3" name="" type="checkbox">
+                <label for="taste_f_3">
+                    Ostry
+                </label>
+                <input id="taste_f_4" name="" type="checkbox">
+                <label for="taste_f_4">
+                    Gorzki
+                </label>
+                <input id="taste_f_5" name="" type="checkbox">
+                <label for="taste_f_5">
+                    Kwaśny
+                </label>
+            </fieldset>
+        </div>
+        <div id="checkboxes2" data-role="fieldcontain">
+            <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+                <legend>
+                    Typ posiłku
+                </legend>
+                <input id="meal_f_1" name="" type="checkbox">
+                <label for="meal_f_1">
+                    Śniadanie
+                </label>
+                <input id="meal_f_2" name="" type="checkbox">
+                <label for="meal_f_2">
+                    Lunch
+                </label>
+                <input id="meal_f_3" name="" type="checkbox">
+                <label for="meal_f_3">
+                    Obiad
+                </label>
+                <input id="meal_f_4" name="" type="checkbox">
+                <label for="meal_f_4">
+                    Kolacja
+                </label>
+                <input id="meal_f_5" name="" type="checkbox">
+                <label for="meal_f_5">
+                    Przekąska
+                </label>
+            </fieldset>
+        </div>
         <table data-role="table" data-mode="columntoggle" data-column-btn-text="Kolumny..." id="my-table">
             <thead>
                 <tr>
@@ -391,15 +461,29 @@
                     <TH data-priority="3">Białko</TH>
                     <TH data-priority="3">Węglowodany</TH>
                     <TH data-priority="3">Tłuszcze</TH>
+                    <TH data-priority="4">Operacje</TH>
                 </tr>
             </thead>
             <tbody id="tbody1">
 
             </tbody>
         </table>
-        <button id="refresher" data-inline="true" data-icon="back" data-iconpos="left" value="Wróć" data-mini="true">
-            refresh
-        </button>
+        
+        <a href="#page1">
+            <button data-inline="true" data-icon="back" data-iconpos="left" value="Wróć" data-mini="true">
+                Wróć
+            </button>
+        </a>
+    </div>
+</div>
+
+<!-- Alarms -->
+<div data-role="page" id="page5">
+    <div data-role="content">
+        <ul data-role="listview" id="listview1" data-divider-theme="b" data-inset="true">
+        </ul>
+        <ul data-role="listview" id="listview2" data-divider-theme="b" data-inset="true">
+        </ul>
         <a href="#page1">
             <button data-inline="true" data-icon="back" data-iconpos="left" value="Wróć" data-mini="true">
                 Wróć
